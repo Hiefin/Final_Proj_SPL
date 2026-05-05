@@ -133,7 +133,9 @@ def ast_to_string(ast):
         return "{" + ";".join(items) + "}"
 
     if ast["tag"] == "function":
-        return str(ast)
+        params = ", ".join(p["value"] for p in ast.get("parameters", []))
+        body = ast_to_string(ast["body"])
+        return f"function({params}) {body}"
 
     if ast["tag"] == "call":
         items = []
@@ -251,15 +253,15 @@ def evaluate(ast, environment):
 
     if ast["tag"] == "identifier":
         identifier = ast["value"]
-    if identifier in environment:
-        return environment[identifier], None
-    if "$parent" in environment:
-        return evaluate(ast, environment["$parent"])
+        if identifier in environment:
+            return environment[identifier], None
+        if "$parent" in environment:
+            return evaluate(ast, environment["$parent"])
     # Unbound names are checked against builtin functions before failing.
-    if identifier in __builtin_functions:
-        return {"tag": "builtin", "name": identifier}, None
+        if identifier in __builtin_functions:
+            return {"tag": "builtin", "name": identifier}, None
         raise Exception(f"Unknown identifier: '{identifier}'")
-
+        
     if ast["tag"] == "+":
         left_value, l_status = evaluate(ast["left"], environment)
         if l_status == "exit":
@@ -1234,6 +1236,15 @@ def test_control_flow_scoping_rules():
 
 if __name__ == "__main__":
     # statements and programs are tested implicitly
+    from tokenizer import tokenize
+    from parser import parse
+
+    code = 'function add(x, y) { return x + y}'
+    ast = parse(tokenize(code))
+    env = {}
+    evaluate(ast, env)
+    print(ast_to_string(env['add']))
+
     test_evaluate_single_value()
     test_evaluate_addition()
     test_evaluate_subtraction()
