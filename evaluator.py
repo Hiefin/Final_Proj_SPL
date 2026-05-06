@@ -1239,11 +1239,61 @@ if __name__ == "__main__":
     from tokenizer import tokenize
     from parser import parse
 
+    # original
     code = 'function add(x, y) { return x + y}'
     ast = parse(tokenize(code))
     env = {}
     evaluate(ast, env)
     print(ast_to_string(env['add']))
+
+    # simple square root
+    code = 'function square(n) { return n * n }'
+    ast = parse(tokenize(code))
+    env = {}
+    evaluate(ast, env)
+    print(ast_to_string(env['square']))
+
+    # simple get zero 
+    code = 'function get_zero() { return 0 }'
+    ast = parse(tokenize(code))
+    env = {}
+    evaluate(ast, env)
+    print(ast_to_string(env['get_zero']))
+
+    # simple mulitplication
+    code = 'function multiply(x, y, z) { return x * y * z }'
+    ast = parse(tokenize(code))
+    env = {}
+    evaluate(ast, env)
+    print(ast_to_string(env['multiply']))
+
+    # a longer calculation that looks neater in the terminal
+    code = 'function calc(x) { a = x * 2; b = a + 3; c = b * b; d = c - a; return d + x }'
+    ast = parse(tokenize(code))
+    env = {}
+    evaluate(ast, env)
+    print(ast_to_string(env['calc']))
+    
+    # this one takes it 3 levels deep
+    code = 'function outer(x) { function middle(y) { function inner(z) { return x + y + z } return inner } return middle }'
+    ast = parse(tokenize(code))
+    env = {}
+    evaluate(ast, env)
+    print(ast_to_string(env['outer']))
+
+    # this is a nested if else
+    code = 'function nestify(x) { if (x < 0) { if (x < -10) { return -2 } else { return -1 } } else { if (x > 10) { return 2 } else { return 1 } } }'
+    ast = parse(tokenize(code))
+    env = {}
+    evaluate(ast, env)
+    print(ast_to_string(env['nestify']))
+
+    # bool tester with many variables
+    code = 'function is_valid(a, b, c, d, e, f) { if ((a > 0) && (b > 0) && (c > 0)) { if ((d < 100) && (e < 100) && (f < 100)) { if (((a + b + c) == (d + e + f)) || ((a * b) == (c * d))) { return true } else { return false } } else { return false } } else { return false } }'
+    ast = parse(tokenize(code))
+    env = {}
+    evaluate(ast, env)
+    print(ast_to_string(env['is_valid']))
 
     test_evaluate_single_value()
     test_evaluate_addition()
